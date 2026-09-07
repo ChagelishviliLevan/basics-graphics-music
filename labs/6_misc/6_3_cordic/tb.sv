@@ -79,18 +79,18 @@ module tb;
         assert (~ $isunknown (sin_out));
         assert (~ $isunknown (cos_out));
 
-        f_angle   = t_angle;
+        f_angle   = real' (t_angle) * 2.0 * pi / (1 << width);
 
-        f_sin_out = real' (sin_out) / (1 << width);
-        f_cos_out = real' (cos_out) / (1 << width);
+        f_sin_out = real' (sin_out) / (1 << (width - 1));
+        f_cos_out = real' (cos_out) / (1 << (width - 1));
 
-        f_sin_exp = $sin (angle);
-        f_cos_exp = $cos (angle);
+        f_sin_exp = $sin (f_angle);
+        f_cos_exp = $cos (f_angle);
 
         f_sin_dif = $abs (f_sin_out - f_sin_exp);
         f_cos_dif = $abs (f_cos_out - f_cos_exp);
 
-        if (f_sin_dif > f_sin_exp * accuracy)
+        if (f_sin_dif > accuracy)
         begin
             $display ("ERROR: sin: %f (%h) expected: %f",
                 f_sin_out, sin_out, f_sin_exp);
@@ -98,7 +98,7 @@ module tb;
             $finish;
         end
 
-        if (f_cos_dif > f_cos_exp * accuracy)
+        if (f_cos_dif > accuracy)
         begin
             $display ("ERROR: cos: %f (%h) expected: %f",
                 f_cos_out, cos_out, f_cos_exp);
@@ -133,11 +133,11 @@ module tb;
         //------------------------------------------------------------------------
         // Tests
 
-        for (int i = 0; i < (1 << width); i += 1000)
+        for (int i = 0; i < 16'h4000; i += 1000)
             test (i);
 
         repeat (100)
-            test ($urandom_range (0, (1 << width) - 1));
+            test ($urandom_range (16'h4000 , 0));
 
         $finish;
     end
@@ -165,8 +165,8 @@ module tb;
 
             if (finish === 1'b1)
                 $write (" sin %h %f cos %h %f",
-                    sin_out, real' (sin_out) / (1 << width),
-                    cos_out, real' (cos_out) / (1 << width));
+                    sin_out, real' (sin_out) / (1 << (width - 1)),
+                    cos_out, real' (cos_out) / (1 << (width - 1)));
         end
 
         $display;
@@ -191,7 +191,7 @@ module tb;
             if (start)
                 start_cnt <= start_cnt + 1'd1;
 
-            if (finish_vld & finish_rdy)
+            if (finish)
                 finish_cnt <= finish_cnt + 1'd1;
         end
 
