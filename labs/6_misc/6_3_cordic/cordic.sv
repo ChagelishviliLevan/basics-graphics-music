@@ -96,7 +96,7 @@ begin
         begin
             iterations <= 4'd0;
             calc <= 1'b1;
-            x_val <= 18'sd19898; // x = 1/K ~= 0.607252935
+            x_val <= 18'sd19897; // x = 1/K ~= 0.607252935
             y_val <= 18'sd0;      
             z_val <= {1'b0, angle}; // Put one 0 bit in front of the 16 bits of angle, becasue angle is 16 bit and z_val 17
         end
