@@ -64,7 +64,7 @@ icarus_verilog_choose_language_option ()
     icarus_language_option=-g2012
 
     local version_output
-    version_output=$(iverilog -V 2>&1) || true
+    version_output=$(iverilog -V 2>&1)
 
     if [[ $version_output =~ Icarus[[:space:]]Verilog[[:space:]]version[[:space:]]([0-9]+)\. ]]
     then
@@ -72,16 +72,16 @@ icarus_verilog_choose_language_option ()
 
         if (( major < 11 ))
         then
-            warning "Icarus Verilog $major is VERY OLD AND NOT SUPPORTED."        \
-                    "Its SystemVerilog support is incomplete and buggy,"         \
-                    "so simulation may fail or produce wrong results."           \
-                    "Please upgrade to Icarus Verilog 12, preferably 13 or 14."  \
+            warning "Icarus Verilog $major is too old for reliable"  \
+                    "simulation of the examples in this repository." \
+                    "Upgrade to version 12 or preferably newer."     \
                     "Continuing with -g2012."
 
         elif (( major == 11 ))
         then
-            warning "Icarus Verilog 11 detected."                         \
-                    "Please switch to version 12, preferably 13 or 14."  \
+            warning "Icarus Verilog 11 detected. We recommend"       \
+                    "switching to version 12, preferably 13 or"      \
+                    "the current development version, future 14."    \
                     "Continuing with -g2012."
 
         elif (( major >= 14 ))
@@ -93,12 +93,13 @@ icarus_verilog_choose_language_option ()
             then
                 icarus_language_option=-g2023
             else
-                warning "Icarus Verilog $major does not accept -g2023."  \
+                warning "This build of Icarus Verilog $major"        \
+                        "does not accept -g2023."                    \
                         "Continuing with -g2012."
             fi
         fi
     else
-        warning "Cannot determine the Icarus Verilog version."  \
+        warning "Cannot determine the Icarus Verilog version."       \
                 "Continuing with -g2012."
     fi
 }
