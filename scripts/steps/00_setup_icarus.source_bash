@@ -57,11 +57,13 @@ icarus_verilog_setup ()
 
 #-----------------------------------------------------------------------------
 
-# Prints the language generation option; warnings go to stderr.
+# Sets icarus_option, which the caller declares local.
 
-icarus_verilog_generation_option ()
+icarus_verilog_choose_generation_option ()
 {
-    local version_output major option=-g2012
+    local version_output major
+
+    icarus_option=-g2012
 
     version_output=$(iverilog -V 2>&1) || true
 
@@ -90,7 +92,7 @@ icarus_verilog_generation_option ()
 
             if iverilog -g2023 -E -o /dev/null /dev/null > /dev/null 2>&1
             then
-                option=-g2023
+                icarus_option=-g2023
             else
                 warning "Icarus Verilog $major does not accept -g2023."  \
                         "Continuing with -g2012."
@@ -100,8 +102,6 @@ icarus_verilog_generation_option ()
         warning "Cannot determine the Icarus Verilog version."  \
                 "Continuing with -g2012."
     fi
-
-    printf '%s\n' "$option"
 }
 
 #-----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ run_icarus_verilog ()
     is_command_available_or_error_and_install iverilog
 
     local icarus_option
-    icarus_option=$(icarus_verilog_generation_option)
+    icarus_verilog_choose_generation_option
 
     rars_assembly
 
