@@ -57,9 +57,65 @@ icarus_verilog_setup ()
 
 #-----------------------------------------------------------------------------
 
+icarus_verilog_choose_generation_flag ()
+{
+    local full_version_output
+
+    # Not piped through "head -n 1": under "set -o pipefail", iverilog
+    # would receive SIGPIPE when head exits early, which "set -e" would
+    # then treat as a failure of this assignment.
+
+    full_version_output=$(iverilog -V 2>&1)
+    icarus_version_string=${full_version_output%%$'\n'*}
+
+    icarus_version_major=$(printf '%s' "$icarus_version_string"  \
+        | sed -n 's/.*[Vv]ersion[[:space:]][[:space:]]*\([0-9][0-9]*\).*/\1/p')
+
+    if [ -z "$icarus_version_major" ]; then
+        warning "could not determine the Icarus Verilog version from:"  \
+                "\"$icarus_version_string\". Assuming a recent version and using -g2012."
+
+        icarus_generation_flag=-g2012
+
+    elif [ "$icarus_version_major" -lt 11 ]; then
+        warning "*** Icarus Verilog version $icarus_version_major is very old."  \
+                "Its SystemVerilog support is incomplete and known to be buggy,"  \
+                "so simulation may fail to compile or may produce wrong results."  \
+                "Please upgrade to Icarus Verilog 12 or newer (13 or 14 preferred)."  \
+                "See https://github.com/steveicarus/iverilog for instructions. ***"
+
+        icarus_generation_flag=-g2012
+
+    elif [ "$icarus_version_major" -eq 11 ]; then
+        warning "Icarus Verilog version 11 detected. Please consider upgrading to"  \
+                "version 12, and preferably 13 or 14, for better SystemVerilog"  \
+                "support and bug fixes."
+
+        icarus_generation_flag=-g2012
+
+    elif [ "$icarus_version_major" -eq 13 ]; then
+        # -g2023 is not available in the stable 13.0 release (only in
+        # development builds past it), so stick with -g2012.
+
+        icarus_generation_flag=-g2012
+
+    elif [ "$icarus_version_major" -ge 14 ]; then
+        icarus_generation_flag=-g2023
+
+    else
+        # Version 12
+
+        icarus_generation_flag=-g2012
+    fi
+}
+
+#-----------------------------------------------------------------------------
+
 run_icarus_verilog ()
 {
     is_command_available_or_error_and_install iverilog
+
+    icarus_verilog_choose_generation_flag
 
     rars_assembly
 
@@ -67,9 +123,7 @@ run_icarus_verilog ()
 
     shopt -s nullglob
 
-    # TODO: Set option depending on iverilog version
-
-    iverilog -g2012 -s tb \
+    iverilog $icarus_generation_flag -s tb \
          -I .. -I ../cpu -I "$lab_dir/common" -I "$package_dir/peripherals" \
             ../*.sv "$lab_dir/common"/*.sv "$package_dir/peripherals"/*.sv \
             ../*.v \
