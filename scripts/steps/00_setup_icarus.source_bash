@@ -57,13 +57,13 @@ icarus_verilog_setup ()
 
 #-----------------------------------------------------------------------------
 
-# Sets icarus_option, which the caller declares local.
+# Sets icarus_language_option, which the caller declares local.
 
-icarus_verilog_choose_generation_option ()
+icarus_verilog_choose_language_option ()
 {
     local version_output major
 
-    icarus_option=-g2012
+    icarus_language_option=-g2012
 
     version_output=$(iverilog -V 2>&1) || true
 
@@ -92,7 +92,7 @@ icarus_verilog_choose_generation_option ()
 
             if iverilog -g2023 -E -o /dev/null /dev/null > /dev/null 2>&1
             then
-                icarus_option=-g2023
+                icarus_language_option=-g2023
             else
                 warning "Icarus Verilog $major does not accept -g2023."  \
                         "Continuing with -g2012."
@@ -110,8 +110,8 @@ run_icarus_verilog ()
 {
     is_command_available_or_error_and_install iverilog
 
-    local icarus_option
-    icarus_verilog_choose_generation_option
+    local icarus_language_option
+    icarus_verilog_choose_language_option
 
     rars_assembly
 
@@ -119,7 +119,7 @@ run_icarus_verilog ()
 
     shopt -s nullglob
 
-    iverilog "$icarus_option" -s tb \
+    iverilog "$icarus_language_option" -s tb \
          -I .. -I ../cpu -I "$lab_dir/common" -I "$package_dir/peripherals" \
             ../*.sv "$lab_dir/common"/*.sv "$package_dir/peripherals"/*.sv \
             ../*.v \
