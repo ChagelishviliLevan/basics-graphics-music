@@ -79,9 +79,9 @@ icarus_verilog_choose_language_option ()
 
         elif (( major == 11 ))
         then
-            warning "Icarus Verilog 11 detected. We recommend"        \
-                    "switching to version 12, preferably 13 or"       \
-                    "the current development version, future 14."     \
+            warning "Icarus Verilog 11 detected. We recommend"     \
+                    "switching to version 12, preferably 13 or"    \
+                    "the current development version, future 14."  \
                     "Continuing with -g2012."
 
         elif (( major >= 14 ))
@@ -93,13 +93,13 @@ icarus_verilog_choose_language_option ()
             then
                 icarus_language_option=-g2023
             else
-                warning "This build of Icarus Verilog $major"         \
-                        "does not accept -g2023."                     \
+                warning "This build of Icarus Verilog $major"  \
+                        "does not accept -g2023."              \
                         "Continuing with -g2012."
             fi
         fi
     else
-        warning "Cannot determine the Icarus Verilog version."        \
+        warning "Cannot determine the Icarus Verilog version."  \
                 "Continuing with -g2012."
     fi
 }
@@ -119,10 +119,10 @@ run_icarus_verilog ()
 
     shopt -s nullglob
 
-    iverilog "$icarus_language_option" -s tb \
+    iverilog "$icarus_language_option" -s tb                                 \
          -I .. -I ../cpu -I "$lab_dir/common" -I "$package_dir/peripherals"  \
             ../*.sv "$lab_dir/common"/*.sv "$package_dir/peripherals"/*.sv   \
-            ../*.v \
+            ../*.v                                                           \
         2>&1 | tee "$log"
 
     shopt -u nullglob
