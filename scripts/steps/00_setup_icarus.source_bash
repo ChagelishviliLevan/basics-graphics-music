@@ -57,10 +57,8 @@ icarus_verilog_setup ()
 
 #-----------------------------------------------------------------------------
 
-run_icarus_verilog ()
+icarus_verilog_choose_generation_flag ()
 {
-    is_command_available_or_error_and_install iverilog
-
     local icarus_version_output icarus_major
     local icarus_language_option=-g2012
 
@@ -76,7 +74,7 @@ run_icarus_verilog ()
         elif (( icarus_major == 11 ))
         then
             warning "Icarus Verilog 11 detected. We recommend switching to version 12, preferably 13 or the current development version, future 14. Continuing with -g2012."
-        elif (( icarus_major == 14 ))
+        elif (( icarus_major >= 14 ))
         then
             # Stable 13.0 supports language generations only through 2012.
             icarus_language_option=-g2023
@@ -84,6 +82,18 @@ run_icarus_verilog ()
     else
         warning "Cannot determine the Icarus Verilog version. Continuing with -g2012."
     fi
+
+    printf '%s\n' "$icarus_language_option"
+}
+
+#-----------------------------------------------------------------------------
+
+run_icarus_verilog ()
+{
+    is_command_available_or_error_and_install iverilog
+
+    local icarus_language_option
+    icarus_language_option=$(icarus_verilog_choose_generation_flag)
 
     rars_assembly
 
