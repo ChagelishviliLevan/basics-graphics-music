@@ -72,10 +72,9 @@ icarus_verilog_choose_language_option ()
 
         if (( major < 11 ))
         then
-            warning "Icarus Verilog $major is too old for reliable"      \
-                    "simulation of the examples in this repository."     \
-                    "Upgrade to version 12 or preferably newer;"         \
-                    "simulation may fail or produce incorrect results."  \
+            warning "Icarus Verilog $major is too old for reliable"   \
+                    "simulation of the examples in this repository."  \
+                    "Upgrade to version 12 or preferably newer."      \
                     "Continuing with -g2012."
 
         elif (( major == 11 ))
