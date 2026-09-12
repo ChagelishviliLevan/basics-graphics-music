@@ -61,15 +61,37 @@ run_icarus_verilog ()
 {
     is_command_available_or_error_and_install iverilog
 
+    local icarus_version_output icarus_major
+    local icarus_language_option=-g2012
+
+    icarus_version_output=$(iverilog -V 2>&1)
+
+    if [[ $icarus_version_output =~ Icarus[[:space:]]Verilog[[:space:]]version[[:space:]]([0-9]+)\. ]]
+    then
+        icarus_major=${BASH_REMATCH[1]}
+
+        if (( icarus_major < 11 ))
+        then
+            warning "Icarus Verilog $icarus_major is too old for reliable simulation of these labs. Upgrade to version 12 or newer; simulation may fail or produce incorrect results. Continuing with -g2012."
+        elif (( icarus_major == 11 ))
+        then
+            warning "Icarus Verilog 11 detected. We recommend switching to version 12, preferably 13 or the current development version, future 14. Continuing with -g2012."
+        elif (( icarus_major == 14 ))
+        then
+            # Stable 13.0 supports language generations only through 2012.
+            icarus_language_option=-g2023
+        fi
+    else
+        warning "Cannot determine the Icarus Verilog version. Continuing with -g2012."
+    fi
+
     rars_assembly
 
     #-------------------------------------------------------------------------
 
     shopt -s nullglob
 
-    # TODO: Set option depending on iverilog version
-
-    iverilog -g2012 -s tb \
+    iverilog "$icarus_language_option" -s tb \
          -I .. -I ../cpu -I "$lab_dir/common" -I "$package_dir/peripherals" \
             ../*.sv "$lab_dir/common"/*.sv "$package_dir/peripherals"/*.sv \
             ../*.v \
